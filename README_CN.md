@@ -66,7 +66,8 @@ npm run bundle:ios
 ```
 News/
 ├── demo/                        # iOS 原生代码 (Swift / ObjC)
-│   ├── AppDelegate.swift        # 应用入口，初始化 UINavigationController
+│   ├── AppDelegate.swift        # 应用入口（@main），初始化 UINavigationController
+│   ├── demoApp.swift            # 原始 SwiftUI 入口（已废弃，入口迁移至 AppDelegate）
 │   ├── ContentView.swift        # SwiftUI 首页（分类宫格、热门、设置入口）
 │   ├── Constants.swift          # 共享常量
 │   ├── INMONavigationBar.swift  # 自定义导航栏
@@ -74,6 +75,7 @@ News/
 │   ├── NavigationBridge.m       # RN 原生模块 — 从 RN 侧触发推入 NewsDetail 页面
 │   ├── SettingsBridge.m         # RN 原生模块 — 将主题变更同步至原生 UIKit
 │   ├── demo-Bridging-Header.h   # ObjC ↔ Swift 桥接头文件
+│   ├── Assets.xcassets/         # 应用图标和主题色资源
 │   └── Info.plist
 │
 ├── src/                         # React Native (TypeScript)
@@ -91,11 +93,16 @@ News/
 │   └── RNViewFactory/           # 本地 CocoaPods — 封装 RN 视图创建供 Swift 调用
 │       ├── RNViewFactory.h/m    # 单例工厂，用于创建 RCTRootView
 │       ├── NavigationBridge.h/m # 跨模块访问头文件
+│       ├── module.modulemap     # Clang 模块映射，使 Swift 可 `import RNViewFactory`
 │       └── RNViewFactory.podspec
 │
+├── demo.xcworkspace             # Xcode 工作区 — 必须打开这个（而非 .xcodeproj）
+├── demo.xcodeproj               # Xcode 项目文件
 ├── index.js                     # RN 入口 — 注册 App、NewsList、NewsDetail、SettingsPage
 ├── package.json                 # JS 依赖与脚本
+├── package-lock.json            # JS 依赖锁文件
 ├── Podfile                      # CocoaPods 依赖配置
+├── Podfile.lock                 # CocoaPods 依赖锁文件
 ├── metro.config.js              # Metro 打包器配置
 ├── babel.config.js              # Babel 配置
 └── app.json                     # RN 应用名称

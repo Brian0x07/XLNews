@@ -66,7 +66,8 @@ This produces an offline JS bundle for production builds. Set the Xcode build co
 ```
 News/
 ├── demo/                        # iOS native code (Swift / ObjC)
-│   ├── AppDelegate.swift        # App entry point, sets up UINavigationController
+│   ├── AppDelegate.swift        # App entry point (@main), sets up UINavigationController
+│   ├── demoApp.swift            # Original SwiftUI entry (deprecated, see AppDelegate)
 │   ├── ContentView.swift        # SwiftUI home screen (categories grid, trending, settings entry)
 │   ├── Constants.swift          # Shared constants
 │   ├── INMONavigationBar.swift  # Custom navigation bar
@@ -74,6 +75,7 @@ News/
 │   ├── NavigationBridge.m       # RN Native Module — pushes NewsDetail from RN
 │   ├── SettingsBridge.m         # RN Native Module — syncs theme to native UIKit
 │   ├── demo-Bridging-Header.h   # ObjC ↔ Swift bridging header
+│   ├── Assets.xcassets/         # App icons and accent colors
 │   └── Info.plist
 │
 ├── src/                         # React Native (TypeScript)
@@ -91,11 +93,16 @@ News/
 │   └── RNViewFactory/           # Local CocoaPods — bridges RN view creation into Swift
 │       ├── RNViewFactory.h/m    # Singleton factory for creating RCTRootViews
 │       ├── NavigationBridge.h/m # Header for cross-module access
+│       ├── module.modulemap     # Clang module map, enables `import RNViewFactory` in Swift
 │       └── RNViewFactory.podspec
 │
+├── demo.xcworkspace             # Xcode workspace — ALWAYS open this (not .xcodeproj)
+├── demo.xcodeproj               # Xcode project file
 ├── index.js                     # RN entry — registers App, NewsList, NewsDetail, SettingsPage
 ├── package.json                 # JS dependencies & scripts
+├── package-lock.json            # JS dependency lock file
 ├── Podfile                      # CocoaPods dependencies
+├── Podfile.lock                 # CocoaPods dependency lock file
 ├── metro.config.js              # Metro bundler config
 ├── babel.config.js              # Babel config
 └── app.json                     # RN app name
