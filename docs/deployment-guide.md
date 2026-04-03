@@ -31,6 +31,7 @@
 | npm | 9.0 | 10.x（随 Node 安装） | JavaScript 依赖管理 |
 | Ruby | 2.7 | 3.2+（系统自带或 rbenv） | CocoaPods 运行时 |
 | CocoaPods | 1.14 | 1.16+ | iOS 原生依赖管理 |
+| apollo-ios-cli | 1.25 | 1.25.x | GraphQL 代码生成（可选，仅修改 Schema 时需要） |
 
 ---
 
@@ -304,12 +305,13 @@ pod --version
 source 'https://cdn.cocoapods.org/'    # 使用 CDN 源（比 git clone 快得多）
 platform :ios, '18.0'                   # 最低部署目标
 
-target 'demo' do
+target 'NewsApp' do
   # 第三方原生依赖
   pod 'Kingfisher', '~> 8.0'          # 图片下载与缓存
   pod 'lottie-ios', '~> 4.5'          # Lottie JSON 动画
   pod 'SwiftProtobuf', '~> 1.28'      # Protocol Buffers
   pod 'Alamofire', '~> 5.9'           # HTTP 网络请求
+  pod 'Apollo', '~> 1.15'             # GraphQL 客户端
   pod 'SnapKit', '~> 5.7'             # Auto Layout DSL
 
   # React Native 集成
@@ -369,6 +371,37 @@ post_install do |installer|
   # 4. 修复 RCTSwiftUI 重复类链接问题
   # 从 xcconfig 中移除重复的 -l 链接标记
 end
+```
+
+### 6.8 Apollo iOS CLI（代码生成工具）
+
+Apollo iOS 使用 CLI 工具从 GraphQL Schema 和查询文件生成强类型的 Swift 代码。**日常开发不需要安装此工具**——只有在修改 `NewsApp/GraphQL/schema.graphqls` 或 `NewsApp/GraphQL/Operations/*.graphql` 时才需要重新生成。
+
+**安装方式：**
+
+```bash
+# 从 GitHub Releases 下载（需要与 Pod 版本匹配）
+curl -sL https://github.com/apollographql/apollo-ios/releases/download/1.25.2/apollo-ios-cli.tar.gz -o apollo-ios-cli.tar.gz
+tar xzf apollo-ios-cli.tar.gz
+
+# 验证
+./apollo-ios-cli --version   # ✅ 期望: 1.25.2
+```
+
+> **重要：CLI 版本必须与 Apollo Pod 版本匹配。** 本项目使用 Apollo 1.25.2（CocoaPods），CLI 也必须使用 1.25.2。版本不匹配会导致生成的代码无法编译（例如 2.x CLI 生成 struct，而 1.x 期望 class）。
+
+**使用方式：**
+
+```bash
+# 在项目根目录执行（读取 apollo-codegen-config.json）
+./apollo-ios-cli generate
+```
+
+**CocoaPods 兼容注意：** 生成的代码默认使用 `import ApolloAPI`，但 CocoaPods 将 ApolloAPI 打包在 `Apollo` 模块中。生成后需要执行：
+
+```bash
+# 将 import ApolloAPI 替换为 import Apollo，将 ApolloAPI. 前缀替换为 Apollo.
+find NewsApp/GraphQL/Generated -name "*.swift" -exec sed -i '' 's/import ApolloAPI/import Apollo/g; s/ApolloAPI\./Apollo./g' {} \;
 ```
 
 ---
@@ -471,7 +504,7 @@ pod install
 **验证：**
 - 项目根目录出现 `Pods/` 文件夹
 - 终端最后几行输出类似 `Pod installation complete! There are XX dependencies`
-- `demo.xcworkspace` 文件存在
+- `NewsApp.xcworkspace` 文件存在
 
 ### 第七步：启动 Metro 开发服务器
 
@@ -502,11 +535,11 @@ npm start
 **方法一：通过 Xcode（推荐新手使用）**
 
 ```bash
-open demo.xcworkspace
+open NewsApp.xcworkspace
 ```
 
 1. Xcode 打开后，在顶部工具栏确认：
-   - **Scheme** 选择 `demo`（左侧下拉菜单）
+   - **Scheme** 选择 `NewsApp`（左侧下拉菜单）
    - **目标设备** 选择一个 iPhone 模拟器（如 `iPhone 16`）
 2. 按 **Cmd+R** 编译运行
 3. 首次编译需要 2-5 分钟（取决于电脑性能），后续增量编译会快很多
@@ -514,10 +547,10 @@ open demo.xcworkspace
 **方法二：纯命令行**
 
 ```bash
-npx react-native run-ios --scheme demo
+npx react-native run-ios --scheme NewsApp
 ```
 
-> **关键提醒：** 始终打开 `demo.xcworkspace`（**不是** `demo.xcodeproj`）。`.xcodeproj` 不包含 CocoaPods 配置的依赖，打开它编译必定失败。
+> **关键提醒：** 始终打开 `NewsApp.xcworkspace`（**不是** `NewsApp.xcodeproj`）。`.xcodeproj` 不包含 CocoaPods 配置的依赖，打开它编译必定失败。
 
 ### 第九步：验证运行成功
 
@@ -535,7 +568,7 @@ npx react-native run-ios --scheme demo
 | 现象 | 原因 | 解决方案 |
 |---|---|---|
 | 首页正常但点击分类后白屏 | Metro 开发服务器未启动 | 确保 `npm start` 在另一个终端持续运行 |
-| Xcode 编译报 "No such module 'RNViewFactory'" | 打开了 `.xcodeproj` 而非 `.xcworkspace` | 关闭 Xcode，用 `open demo.xcworkspace` 重新打开 |
+| Xcode 编译报 "No such module 'RNViewFactory'" | 打开了 `.xcodeproj` 而非 `.xcworkspace` | 关闭 Xcode，用 `open NewsApp.xcworkspace` 重新打开 |
 | `pod install` 报错 | CocoaPods 版本过旧或仓库索引缺失 | 运行 `sudo gem install cocoapods && pod install --repo-update` |
 | 模拟器中 App 闪退 | 可能是 JS Bundle 加载失败 | 查看 Metro 终端是否有红色报错信息 |
 
@@ -637,7 +670,7 @@ react-native bundle \
 
 ### 10.2 配置签名
 
-1. Xcode → demo target → Signing & Capabilities
+1. Xcode → NewsApp target → Signing & Capabilities
 2. Team 选择你的 Apple ID 或开发者账号
 3. 勾选 "Automatically manage signing"
 4. Xcode 会自动创建 Provisioning Profile
@@ -671,8 +704,8 @@ pod install --repo-update       # 确保 Pod 仓库索引最新
 
 # 构建
 xcodebuild \
-  -workspace demo.xcworkspace \
-  -scheme demo \
+  -workspace NewsApp.xcworkspace \
+  -scheme NewsApp \
   -configuration Release \
   -sdk iphoneos \
   -derivedDataPath ./build \
@@ -741,6 +774,29 @@ pod install
 在 Xcode 中：
 - **Clean Build Folder**：Cmd + Shift + K
 - **清除 DerivedData**：`rm -rf ~/Library/Developer/Xcode/DerivedData/`
+
+### Apollo 生成代码编译报错
+
+**症状：** `no such module 'ApolloAPI'` 或 `non-class type cannot conform to class protocol 'GraphQLQuery'`
+
+**原因：**
+- `ApolloAPI` 错误：CocoaPods 将 ApolloAPI 打包在 `Apollo` 模块中，需要替换 import
+- `non-class` 错误：CLI 版本与 Pod 版本不匹配（如 CLI 2.x 生成的代码无法在 Apollo 1.x 上编译）
+
+**解决方案：**
+
+```bash
+# 1. 确认版本匹配
+./apollo-ios-cli --version          # 应为 1.25.x
+grep "Apollo (" Podfile.lock        # 应为 Apollo (1.25.x)
+
+# 2. 重新生成并修复 imports
+./apollo-ios-cli generate
+find NewsApp/GraphQL/Generated -name "*.swift" -exec sed -i '' 's/import ApolloAPI/import Apollo/g; s/ApolloAPI\./Apollo./g' {} \;
+
+# 3. Clean build
+# Xcode: Cmd+Shift+K，然后 Cmd+R
+```
 
 ### `.xcode.env` 中 Node 路径不对
 

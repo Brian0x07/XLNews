@@ -1,5 +1,8 @@
 PODS:
   - Alamofire (5.11.1)
+  - Apollo (1.25.2):
+    - Apollo/Core (= 1.25.2)
+  - Apollo/Core (1.25.2)
   - FBLazyVector (0.84.1)
   - hermes-engine (250829098.0.9):
     - hermes-engine/Pre-built (= 250829098.0.9)
@@ -1796,6 +1799,7 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire (~> 5.9)
+  - Apollo (~> 1.15)
   - FBLazyVector (from `node_modules/react-native/Libraries/FBLazyVector`)
   - hermes-engine (from `node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - Kingfisher (~> 8.0)
@@ -1879,6 +1883,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - Apollo
     - Kingfisher
     - lottie-ios
     - SnapKit
@@ -2037,6 +2042,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: eec6cd8f73b242b59e34153a606a909eb9864b14
+  Apollo: dc2e92c10077c8ac5e4b807426c0f557fe4cee1c
   FBLazyVector: e97c19a5a442429d1988f182a1940fb08df514da
   hermes-engine: ee2b1622b58cabefda7e491e115fc2e96079788d
   Kingfisher: beeaf65ed57dfa710d416aea4093277e8a9b1968
@@ -2111,11 +2117,11 @@ SPEC CHECKSUMS:
   ReactCodegen: 029e5d34c5119ae6e2617d934ca977e7940b4756
   ReactCommon: 07572bf9e687c8a52fbe4a3641e9e3a1a477c78e
   ReactNativeDependencies: 84c15a4d32da2175dda014deeba6f5522f61b997
-  RNViewFactory: 3290faf857ca6ed052d6605125b9f74eb5466d03
+  RNViewFactory: 6aca275e9e5c4ef1f71cdac6bf5ee17d0bd30651
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   SwiftProtobuf: 9e106a71456f4d3f6a3b0c8fd87ef0be085efc38
   Yoga: c0b3f2c7e8d3e327e450223a2414ca3fa296b9a2
 
-PODFILE CHECKSUM: cb634ebae48fa6707449bd1323d8e48c79243ea8
+PODFILE CHECKSUM: 057afd2071e75ad382c440a15b1d878cb0642392
 
 COCOAPODS: 1.16.2

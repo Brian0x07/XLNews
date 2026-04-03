@@ -1,0 +1,27 @@
+{
+  "schemaNamespace": "NewsAPI",
+  "input": {
+    "operationSearchPaths": [
+      "NewsApp/GraphQL/Operations/**/*.graphql"
+    ],
+    "schemaSearchPaths": [
+      "NewsApp/GraphQL/schema.graphqls"
+    ]
+  },
+  "output": {
+    "testMocks": {
+      "none": {}
+    },
+    "schemaTypes": {
+      "path": "NewsApp/GraphQL/Generated",
+      "moduleType": {
+        "embeddedInTarget": {
+          "name": "NewsApp"
+        }
+      }
+    },
+    "operations": {
+      "inSchemaModule": {}
+    }
+  }
+}

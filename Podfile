@@ -4,7 +4,7 @@ platform :ios, '18.0'
 # 加载 React Native CocoaPods 辅助脚本
 require_relative 'node_modules/react-native/scripts/react_native_pods'
 
-target 'demo' do
+target 'NewsApp' do
   # 注意：移除了 use_frameworks!
   # 解决 Xcode 14+ libarclite 被移除导致的编译错误
 
@@ -19,6 +19,9 @@ target 'demo' do
 
   # 网络请求
   pod 'Alamofire', '~> 5.9'
+
+  # GraphQL 客户端
+  pod 'Apollo', '~> 1.15'
 
   # 布局
   pod 'SnapKit', '~> 5.7'
@@ -65,7 +68,7 @@ post_install do |installer|
 
   # 修复 RCTSwiftUI 重复类：预编译 React.framework 已包含这些类，
   # 需要从 xcconfig 中移除对应的 -l 链接，并清空源文件避免重复编译
-  Dir.glob("Pods/Target Support Files/Pods-demo/*.xcconfig").each do |path|
+  Dir.glob("Pods/Target Support Files/Pods-NewsApp/*.xcconfig").each do |path|
     content = File.read(path)
     content = content.gsub(' -l"RCTSwiftUI"', '').gsub(' -l"RCTSwiftUIWrapper"', '')
     File.write(path, content)

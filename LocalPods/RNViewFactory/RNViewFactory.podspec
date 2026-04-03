@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary      = 'React Native View Factory for Swift projects'
   s.homepage     = 'https://example.com'
   s.license      = { :type => 'MIT' }
-  s.author       = { 'demo' => 'demo@example.com' }
+  s.author       = { 'NewsApp' => 'newsapp@example.com' }
   s.source       = { :path => '.' }
   s.platforms   = { :ios => '15.1' }
   s.source_files = '*.{h,m}'

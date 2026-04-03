@@ -1,6 +1,6 @@
 //
 //  SettingsBridge.m
-//  demo
+//  NewsApp
 //
 
 #import <React/RCTBridgeModule.h>

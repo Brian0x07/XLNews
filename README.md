@@ -15,6 +15,7 @@ A hybrid iOS news reader app built with **SwiftUI + React Native**. The native s
 | Native Shell | SwiftUI, UIKit, UINavigationController |
 | RN Runtime | React Native 0.84 (Bridge mode) |
 | State Management | Redux Toolkit + React Redux |
+| GraphQL Client (Native) | Apollo iOS 1.25.2 |
 | Networking (Native) | Alamofire 5.9 |
 | Image Loading (Native) | Kingfisher 8.0 |
 | Layout (Native) | SnapKit 5.7 |
@@ -46,11 +47,11 @@ pod install
 npm start
 
 # 5. Open Xcode workspace & run
-open demo.xcworkspace
-# Select the "demo" scheme → choose a simulator or device → Cmd+R
+open NewsApp.xcworkspace
+# Select the "NewsApp" scheme → choose a simulator or device → Cmd+R
 ```
 
-> **Note:** Always open `demo.xcworkspace` (not `demo.xcodeproj`), because CocoaPods manages the workspace.
+> **Note:** Always open `NewsApp.xcworkspace` (not `NewsApp.xcodeproj`), because CocoaPods manages the workspace.
 
 ### Building a Release Bundle
 
@@ -65,16 +66,24 @@ This produces an offline JS bundle for production builds. Set the Xcode build co
 
 ```
 News/
-├── demo/                        # iOS native code (Swift / ObjC)
+├── NewsApp/                     # iOS native code (Swift / ObjC)
 │   ├── AppDelegate.swift        # App entry point (@main), sets up UINavigationController
-│   ├── demoApp.swift            # Original SwiftUI entry (deprecated, see AppDelegate)
+│   ├── NewsAppApp.swift          # Original SwiftUI entry (deprecated, see AppDelegate)
 │   ├── ContentView.swift        # SwiftUI home screen (categories grid, trending, settings entry)
 │   ├── Constants.swift          # Shared constants
 │   ├── INMONavigationBar.swift  # Custom navigation bar
 │   ├── TranslationOnboardingView.swift
-│   ├── NavigationBridge.m       # RN Native Module — pushes NewsDetail from RN
 │   ├── SettingsBridge.m         # RN Native Module — syncs theme to native UIKit
-│   ├── demo-Bridging-Header.h   # ObjC ↔ Swift bridging header
+│   ├── NewsDataBridge.swift     # RN Native Module — fetches news via Apollo GraphQL
+│   ├── NewsDataBridge.m         # ObjC bridge for NewsDataBridge
+│   ├── NewsApp-Bridging-Header.h # ObjC ↔ Swift bridging header
+│   ├── Services/
+│   │   ├── ApolloService.swift  # Apollo client singleton (mock/production modes)
+│   │   └── MockNewsData.swift   # Mock GraphQL server responses (local JSON)
+│   ├── GraphQL/
+│   │   ├── schema.graphqls      # GraphQL schema definition
+│   │   ├── Operations/          # .graphql query files
+│   │   └── Generated/           # Auto-generated Swift types (apollo-ios-cli)
 │   ├── Assets.xcassets/         # App icons and accent colors
 │   └── Info.plist
 │
@@ -91,13 +100,13 @@ News/
 │
 ├── LocalPods/
 │   └── RNViewFactory/           # Local CocoaPods — bridges RN view creation into Swift
-│       ├── RNViewFactory.h/m    # Singleton factory for creating RCTRootViews
-│       ├── NavigationBridge.h/m # Header for cross-module access
+│       ├── RNViewFactory.h/m    # Utility class with factory methods for creating RCTRootViews
+│       ├── NavigationBridge.h/m # RN Native Module — pushes NewsDetail onto the native nav stack
 │       ├── module.modulemap     # Clang module map, enables `import RNViewFactory` in Swift
 │       └── RNViewFactory.podspec
 │
-├── demo.xcworkspace             # Xcode workspace — ALWAYS open this (not .xcodeproj)
-├── demo.xcodeproj               # Xcode project file
+├── NewsApp.xcworkspace          # Xcode workspace — ALWAYS open this (not .xcodeproj)
+├── NewsApp.xcodeproj            # Xcode project file
 ├── index.js                     # RN entry — registers App, NewsList, NewsDetail, SettingsPage
 ├── package.json                 # JS dependencies & scripts
 ├── package-lock.json            # JS dependency lock file
@@ -105,6 +114,7 @@ News/
 ├── Podfile.lock                 # CocoaPods dependency lock file
 ├── metro.config.js              # Metro bundler config
 ├── babel.config.js              # Babel config
+├── apollo-codegen-config.json   # Apollo iOS code generation config
 └── app.json                     # RN app name
 ```
 
@@ -128,11 +138,16 @@ News/
     ▼          ▼          ▼
  NewsList  NewsDetail  SettingsPage
   (RN)       (RN)        (RN)
-    │                      │
-    │ NavigationBridge     │ SettingsBridge
-    │ (pushNewsDetail)     │ (applyTheme)
-    ▼                      ▼
-  Native push           UIKit theme sync
+    │          │           │
+    │ NewsDataBridge       │ SettingsBridge
+    │ (fetchNewsFeed)      │ (applyTheme)
+    ▼          │           ▼
+ Apollo iOS    │        UIKit theme sync
+ (GraphQL)     │
+    │          │ NavigationBridge
+    ▼          │ (pushNewsDetail)
+ Mock/Server   ▼
+             Native push
 ```
 
 **Key design decisions:**
@@ -141,6 +156,7 @@ News/
 - **Native Bridges**: `NavigationBridge` lets RN trigger native navigation (e.g., push detail page). `SettingsBridge` syncs theme changes from RN back to the native UINavigationBar.
 - **Shared Redux store**: All RN components share one Redux store (via `withProvider` HOC) for consistent theme/font-size state.
 - **RNViewFactory as local pod**: Encapsulates all RN bootstrapping into a reusable CocoaPods module, keeping the main app target clean.
+- **Native-owned networking (Apollo iOS)**: The native side owns the single GraphQL client. RN pages consume data through `NewsDataBridge`, avoiding dual-cache inconsistency and duplicated auth logic — the recommended pattern for brownfield hybrid apps.
 
 ## Native Modules Reference
 
@@ -148,6 +164,8 @@ News/
 |---|---|---|---|
 | `NavigationBridge` | `pushNewsDetail(data)` | RN → Native | Push NewsDetail VC onto the nav stack |
 | `SettingsBridge` | `applyTheme(theme)` | RN → Native | Switch native nav bar between dark/light |
+| `NewsDataBridge` | `fetchNewsFeed(category)` | RN → Native → Apollo | Fetch news list via GraphQL (returns Promise) |
+| `NewsDataBridge` | `fetchArticle(id)` | RN → Native → Apollo | Fetch single article via GraphQL (returns Promise) |
 
 ## Configuration
 
@@ -160,7 +178,22 @@ The app supports dark and light themes. Theme state lives in Redux (`settingsSli
 
 ### Font Size
 
-Three presets — `small`, `medium`, `large` — defined in `theme.ts`. Affects body, title, caption, and detail text sizes across all RN pages.
+Three presets — `small`, `medium`, `large` — defined in `theme.ts`. Affects body, title, caption, detail, and detailTitle text sizes across all RN pages.
+
+### GraphQL (Apollo iOS)
+
+News data is fetched via Apollo iOS on the native side and bridged to RN through `NewsDataBridge`. The architecture follows the **"native owns networking"** pattern recommended for brownfield hybrid apps.
+
+- **Schema**: `NewsApp/GraphQL/schema.graphqls` defines `NewsArticle` type and `newsFeed`/`article` queries
+- **Generated types**: `NewsApp/GraphQL/Generated/` contains auto-generated Swift types from `apollo-ios-cli`
+- **Mock mode** (default): `ApolloService.swift` uses a `MockNewsTransport` that returns local JSON data without a real server
+- **Production mode**: Change `useMockData` to `false` and update `graphQLEndpoint` in `ApolloService.swift` to connect a real GraphQL server
+
+Regenerate types after schema changes:
+
+```bash
+apollo-ios-cli generate
+```
 
 ## Troubleshooting
 

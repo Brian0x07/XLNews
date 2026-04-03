@@ -82,7 +82,7 @@ DerivedData
 | `*.hmap` | Header Map 文件。Xcode 编译时生成的头文件索引映射，用于加速 `#import` 查找。属于编译中间产物。 |
 | `*.ipa` | iOS App Store Package，即 iOS 应用安装包。由 Xcode Archive 导出，体积大，应通过 CI/CD 流水线分发而非 git。 |
 | `*.xcuserstate` | Xcode 用户界面状态的二进制序列化文件（在 `xcuserdata` 内）。记录编辑器光标位置、展开的文件夹等。变更极其频繁，是最常见的"脏文件"来源。 |
-| `*.xcodeproj/project.xcworkspace/` | `xcodeproj` 内部自动生成的 workspace 目录。注意使用了精确路径 `*.xcodeproj/` 前缀，不会影响根目录下的 `demo.xcworkspace`（那个需要入库，因为 CocoaPods 依赖它）。 |
+| `*.xcodeproj/project.xcworkspace/` | `xcodeproj` 内部自动生成的 workspace 目录。注意使用了精确路径 `*.xcodeproj/` 前缀，不会影响根目录下的 `NewsApp.xcworkspace`（那个需要入库，因为 CocoaPods 依赖它）。 |
 
 ---
 
@@ -307,6 +307,18 @@ Pods/
 | 条目 | 说明 |
 |---|---|
 | `*.log` | 匹配所有 `.log` 后缀的文件。覆盖 Metro 运行日志、npm 调试日志等各类日志文件。日志是临时的运行时输出，不应入库。注意这条规则范围较广，会忽略项目中所有日志文件。 |
+
+---
+
+## 关于 Apollo 生成代码（未忽略）
+
+`NewsApp/GraphQL/Generated/` 目录下的文件由 `apollo-ios-cli generate` 自动生成，但**故意不忽略**，原因：
+
+- 这些文件是编译所必需的 Swift 源码，CI/CD 环境中不一定安装了 apollo-ios-cli
+- 团队成员 clone 后无需额外安装 CLI 就能直接编译
+- Apollo 官方推荐将生成代码纳入版本管理
+
+同样，`apollo-codegen-config.json` 也需要纳入版本管理，它是代码生成的配置文件。
 
 ---
 

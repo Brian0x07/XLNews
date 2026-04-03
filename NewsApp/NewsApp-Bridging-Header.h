@@ -1,12 +1,12 @@
 //
-//  demo-Bridging-Header.h
-//  demo
+//  NewsApp-Bridging-Header.h
+//  NewsApp
 //
 //  Bridging header for React Native Objective-C bridge
 //
 
-#ifndef demo_Bridging_Header_h
-#define demo_Bridging_Header_h
+#ifndef NewsApp_Bridging_Header_h
+#define NewsApp_Bridging_Header_h
 
 // React Native headers needed for RCTRootView
 #import <React/RCTRootView.h>
@@ -16,4 +16,4 @@
 // RNViewFactory bridge class
 #import <RNViewFactory/RNViewFactory.h>
 
-#endif /* demo_Bridging_Header_h */
+#endif /* NewsApp_Bridging_Header_h */

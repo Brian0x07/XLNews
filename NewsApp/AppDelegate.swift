@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  demo
+//  NewsApp
 //
 //  React Native App Delegate - 驱动 RN 引擎
 //

@@ -1,0 +1,12 @@
+query NewsFeed($category: String!, $limit: Int = 20) {
+  newsFeed(category: $category, limit: $limit) {
+    id
+    title
+    summary
+    body
+    imageUrl
+    source
+    publishedAt
+    category
+  }
+}

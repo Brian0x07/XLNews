@@ -1,0 +1,19 @@
+type Query {
+  """获取新闻列表，按分类筛选"""
+  newsFeed(category: String!, limit: Int = 20): [NewsArticle!]!
+
+  """获取单篇文章详情"""
+  article(id: ID!): NewsArticle
+}
+
+"""新闻文章"""
+type NewsArticle {
+  id: ID!
+  title: String!
+  summary: String!
+  body: String!
+  imageUrl: String!
+  source: String!
+  publishedAt: String!
+  category: String!
+}

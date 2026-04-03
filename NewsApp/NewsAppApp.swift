@@ -1,6 +1,6 @@
 //
-//  demoApp.swift
-//  demo
+//  NewsAppApp.swift
+//  NewsApp
 //
 //  此文件已不再作为入口点。
 //  入口点已迁移到 AppDelegate.swift（@main）以支持 React Native。

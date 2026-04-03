@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  demo
+//  NewsApp
 //
 //  Created by xiaolei on 3/24/26.
 //
@@ -140,16 +140,16 @@ struct ContentView: View {
     }
 
     private func pushRNNewsList(category: String, title: String) {
-        pushRNPage(moduleName: "NewsList", title: title)
+        pushRNPage(moduleName: "NewsList", title: title, props: ["category": category])
     }
 
-    private func pushRNPage(moduleName: String, title: String) {
+    private func pushRNPage(moduleName: String, title: String, props: [String: Any]? = nil) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first,
               let nav = window.rootViewController as? UINavigationController else {
             return
         }
-        let vc = RNViewController(moduleName: moduleName)
+        let vc = RNViewController(moduleName: moduleName, initialProperties: props)
         vc.title = title
         nav.pushViewController(vc, animated: true)
     }
@@ -180,9 +180,11 @@ struct CategoryCard: View {
 
 class RNViewController: UIViewController {
     private let moduleName: String
+    private let initialProperties: [String: Any]?
 
-    init(moduleName: String) {
+    init(moduleName: String, initialProperties: [String: Any]? = nil) {
         self.moduleName = moduleName
+        self.initialProperties = initialProperties
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -193,7 +195,8 @@ class RNViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(red: 0.09, green: 0.09, blue: 0.11, alpha: 1)
-        let rnView = RNViewFactory.createRootView(withModuleName: moduleName)
+        let rnView = RNViewFactory.createRootView(withModuleName: moduleName,
+                                                   initialProperties: initialProperties)
         rnView.frame = view.bounds
         rnView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(rnView)
