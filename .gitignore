@@ -20,7 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-project.xcworkspace
+*.xcodeproj/project.xcworkspace/
 
 # Android/IntelliJ
 #
@@ -56,7 +56,6 @@ yarn-error.log
 *.jsbundle
 
 # Ruby / CocoaPods
-/ios/Pods/
 /vendor/bundle/
 
 # Temporary files created by Metro to check the health of the file watcher
@@ -84,13 +83,16 @@ Desktop.ini
 # VS Code
 .vscode/
 
-# LocalPods
-LocalPods/
-
 # iOS specific
 Pods/
-Podfile.lock
 .xcode.env
+
+# Xcode debug symbols
+*.dSYM
+*.dSYM.zip
+
+# Claude Code
+.claude/
 
 # React Native
 *.log

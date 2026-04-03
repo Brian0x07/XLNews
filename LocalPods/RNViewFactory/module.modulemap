@@ -1,0 +1,6 @@
+framework module RNViewFactory {
+    umbrella header "RNViewFactory.h"
+
+    export *
+    module * { export * }
+}
